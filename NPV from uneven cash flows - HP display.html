@@ -1,0 +1,282 @@
+<!-- EYARC-styled "calculator display" graphic — BA II Plus NPV worksheet -->
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root{
+    --navy:#002E5D;
+    --blue:#0d65c7;
+    --lightblue:#B5E2FA;
+    --yellow:#FFE600;
+    --gold:#F2BA05;
+    --gray1:#EAEAF1;
+    --gray2:#C2C2CE;
+    --gray3:#747480;
+    --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    --sans:'Open Sans', Arial, sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  body{
+    font-family:var(--sans);
+    background:#F2F3F7;
+    display:flex;
+    justify-content:center;
+    padding:40px 24px;
+    min-height:100vh;
+  }
+
+  .wrap{ width:100%; max-width:780px; }
+
+  /* ---- graphic frame: 1pt black border per handout-graphics guideline ---- */
+  .frame{
+    border:1px solid #000;
+    border-radius:14px;
+    overflow:hidden;
+    background:var(--navy);
+    box-shadow:0 18px 40px -18px rgba(0,46,93,.55);
+  }
+
+  /* ---- title bar ---- */
+  .bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 22px;
+    background:var(--navy);
+    border-bottom:3px solid var(--yellow);
+  }
+  .bar h1{
+    font-family:var(--sans);
+    font-weight:800;
+    font-size:16px;
+    letter-spacing:.3px;
+    color:#fff;
+  }
+  .bar .sub{
+    font-size:11px;
+    font-weight:600;
+    color:var(--lightblue);
+    letter-spacing:.6px;
+    text-transform:uppercase;
+  }
+  .chip{
+    font-family:var(--mono);
+    font-size:11px;
+    font-weight:700;
+    color:var(--navy);
+    background:var(--yellow);
+    padding:5px 10px;
+    border-radius:6px;
+    white-space:nowrap;
+  }
+
+  /* ---- display screen ---- */
+  .screen{
+    position:relative;
+    background:var(--navy);
+    padding:10px 0 16px;
+  }
+  /* faint scanline texture for "display" feel, kept very subtle */
+  .screen::after{
+    content:"";
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.025) 0px,
+      rgba(255,255,255,.025) 1px,
+      transparent 1px,
+      transparent 3px);
+    pointer-events:none;
+  }
+
+  /* column header */
+  .head{
+    display:grid;
+    grid-template-columns:230px 1fr;
+    gap:18px;
+    padding:8px 24px 10px;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--gray2);
+    border-bottom:1px solid rgba(181,226,250,.18);
+  }
+  .head .a{color:var(--gray2);}
+  .head .b{color:var(--gray2);}
+
+  .row{
+    display:grid;
+    grid-template-columns:230px 1fr;
+    gap:18px;
+    align-items:baseline;
+    padding:9px 24px;
+    border-bottom:1px solid rgba(181,226,250,.10);
+    opacity:0;
+    transform:translateY(6px);
+    animation:reveal .42s ease forwards;
+  }
+  .row:last-child{border-bottom:none;}
+
+  /* keystroke column (monospace) */
+  .keys{
+    font-family:var(--mono);
+    font-size:14px;
+    font-weight:500;
+    color:#fff;
+    white-space:pre;
+    line-height:1.4;
+  }
+  .keys .cmd{color:var(--yellow); font-weight:700;}
+  .keys .num{color:#fff;}
+  .keys .arr{color:var(--gold); font-weight:700;}
+
+  /* annotation column (lighter) */
+  .ann{
+    font-family:var(--mono);
+    font-size:13.5px;
+    line-height:1.45;
+    color:var(--lightblue);
+  }
+  .ann.desc{ color:var(--gray2); font-style:italic; }
+  .ann .note{
+    color:var(--gray2);
+    font-style:italic;
+    font-size:12px;
+  }
+
+  /* result row */
+  .row.result{
+    background:rgba(255,230,0,.10);
+    border-top:1px solid rgba(255,230,0,.45);
+    border-bottom:none;
+    padding-top:14px;
+    padding-bottom:16px;
+  }
+  .row.result .keys .cmd{color:var(--yellow);}
+  .row.result .ann{
+    color:var(--yellow);
+    font-weight:700;
+    font-size:16px;
+  }
+
+  @keyframes reveal{
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  /* ---- tip callout ---- */
+  .tip{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    background:#fff;
+    border-top:1px solid var(--gray1);
+    padding:14px 22px;
+  }
+  .tip .mark{
+    flex:none;
+    width:26px; height:26px;
+    border-radius:6px;
+    background:var(--yellow);
+    color:var(--navy);
+    font-family:var(--sans);
+    font-weight:800;
+    font-size:15px;
+    display:flex; align-items:center; justify-content:center;
+    margin-top:1px;
+  }
+  .tip p{
+    font-family:var(--sans);
+    font-size:13px;
+    line-height:1.5;
+    color:var(--navy);
+  }
+  .tip p b{font-weight:700;}
+  .tip code{
+    font-family:var(--mono);
+    font-size:12px;
+    background:var(--gray1);
+    color:var(--navy);
+    padding:1px 5px;
+    border-radius:4px;
+  }
+
+  /* ---- caption / footer in handout style ---- */
+  .footer{
+    background:#fff;
+    padding:12px 22px 14px;
+    border-top:1px solid var(--gray1);
+  }
+  .footer .t{ font-size:10px; font-weight:600; color:var(--gray3); }
+  .footer .c{ font-size:8px; color:var(--gray3); margin-top:2px; }
+
+  .legend{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-top:14px;
+    padding:0 4px;
+    font-size:11px;
+    color:var(--gray3);
+    font-weight:600;
+  }
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .dot{width:11px; height:11px; border-radius:3px; display:inline-block;}
+</style>
+
+<div class="wrap">
+  <div class="frame">
+    <div class="bar">
+      <div>
+        <h1>NPV from Uneven Cash Flows</h1>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="head">
+        <div class="a">Keystrokes</div>
+        <div class="b">What you see / why</div>
+      </div>
+      <div id="rows"></div>
+    </div>
+
+    <div class="tip">
+      <div class="mark">!</div>
+      <p><b>About the frequency (<code>F</code>) entries:</b> you don&rsquo;t actually have to enter <code>1</code> when a cash flow happens in only one year &mdash; the calculator defaults to a frequency of 1. Entering it is just a habit that pays off when a cash flow <b>repeats over several years</b>: instead of keying the same amount multiple times, enter the amount once, then set <code>F</code> to the number of years it occurs.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const rows = [
+    { keys:'<span class="cmd">CF</span>',                                                              ann:'opens the CF register', desc:true },
+    { keys:'<span class="num">0</span>      <span class="cmd">ENTER</span> <span class="arr">&#8595;</span>', ann:'CF0 = 0', note:'no initial investment here' },
+    { keys:'<span class="num">8000</span>   <span class="cmd">ENTER</span> <span class="arr">&#8595;</span>', ann:'C01 = 8,000', note:'year 1' },
+    { keys:'<span class="num">1</span>      <span class="cmd">ENTER</span> <span class="arr">&#8595;</span>', ann:'F01 = 1', note:'occurs once' },
+    { keys:'<span class="num">15000</span>  <span class="cmd">ENTER</span> <span class="arr">&#8595;</span>', ann:'C02 = 15,000', note:'year 2' },
+    { keys:'<span class="num">1</span>      <span class="cmd">ENTER</span> <span class="arr">&#8595;</span>', ann:'F02 = 1' },
+    { keys:'<span class="num">22000</span>  <span class="cmd">ENTER</span> <span class="arr">&#8595;</span>', ann:'C03 = 22,000', note:'year 3' },
+    { keys:'<span class="num">1</span>      <span class="cmd">ENTER</span> <span class="arr">&#8595;</span>', ann:'F03 = 1' },
+    { keys:'<span class="num">30000</span>  <span class="cmd">ENTER</span> <span class="arr">&#8595;</span>', ann:'C04 = 30,000', note:'year 4' },
+    { keys:'<span class="num">1</span>      <span class="cmd">ENTER</span> <span class="arr">&#8595;</span>', ann:'F04 = 1' },
+    { keys:'<span class="cmd">NPV</span>',                                                             ann:'opens the NPV worksheet', desc:true },
+    { keys:'<span class="num">10</span>     <span class="cmd">ENTER</span> <span class="arr">&#8595;</span>', ann:'I = 10%' },
+    { keys:'<span class="cmd">CPT</span>',                                                             ann:'NPV = 56,688.75', result:true },
+  ];
+
+  const host = document.getElementById('rows');
+  rows.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'row' + (r.result ? ' result' : '');
+    div.style.animationDelay = (0.12 + i * 0.10) + 's';
+    const annClass = 'ann' + (r.desc ? ' desc' : '');
+    const note = r.note ? ' <span class="note">(' + r.note + ')</span>' : '';
+    div.innerHTML =
+      '<div class="keys">' + r.keys + '</div>' +
+      '<div class="' + annClass + '">' + r.ann + note + '</div>';
+    host.appendChild(div);
+  });
+</script>
